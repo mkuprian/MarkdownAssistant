@@ -85,8 +85,41 @@ target_compile_options(gapbuffer_tests
 )
 
 # -----------------------------------------------------------------------------
+# Test executable: markdown_tests
+# -----------------------------------------------------------------------------
+add_executable(markdown_tests)
+
+# Add test sources
+target_sources(markdown_tests
+    PRIVATE
+        markdown_tests.cpp
+)
+
+# Specify C++ standard
+target_compile_features(markdown_tests
+    PRIVATE
+        cxx_std_17
+)
+
+# Link to GoogleTest and markdown library
+target_link_libraries(markdown_tests
+    PRIVATE
+        mdeditor::markdown
+        GTest::gtest
+        GTest::gtest_main
+)
+
+# Set compiler warnings
+target_compile_options(markdown_tests
+    PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
+)
+
+# -----------------------------------------------------------------------------
 # Register tests with CTest
 # -----------------------------------------------------------------------------
 include(GoogleTest)
 gtest_discover_tests(mdtests)
 gtest_discover_tests(gapbuffer_tests)
+gtest_discover_tests(markdown_tests)

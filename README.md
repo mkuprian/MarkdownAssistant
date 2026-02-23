@@ -7,6 +7,8 @@ A Qt-based Markdown editor built with modern CMake and C++17.
 - Modern CMake build system (3.21+)
 - C++17 standard
 - GoogleTest for unit testing
+- Pluggable Markdown parser with fallback renderer
+- Optional cmark integration for full CommonMark compliance
 - Optional Qt WebEngine support for preview rendering
 - CI/CD with GitHub Actions
 
@@ -29,15 +31,22 @@ mdeditor/
 │   │   ├── CMakeLists.txt
 │   │   ├── gap_buffer.h
 │   │   └── gap_buffer.cpp
-│   └── cli/                  # CLI demo for GapBuffer
+│   ├── markdown/             # Markdown parser library
+│   │   ├── CMakeLists.txt
+│   │   ├── IMarkdownParser.h
+│   │   ├── fallback_renderer.h/cpp
+│   │   └── cmark_adapter.h/cpp
+│   └── cli/                  # CLI tools
 │       ├── CMakeLists.txt
-│       └── main.cpp
+│       ├── main.cpp          # mdcli - GapBuffer demo
+│       └── preview.cpp       # mdpreview - HTML preview
 ├── samples/                  # Sample files for demos
 │   └── sample.md
 ├── tests/                    # Unit tests
 │   ├── CMakeLists.txt
 │   ├── test_stub.cpp
-│   └── gapbuffer_tests.cpp
+│   ├── gapbuffer_tests.cpp
+│   └── markdown_tests.cpp
 ├── tools/                    # Development tools
 │   └── CMakeLists.txt
 └── .github/workflows/        # CI configuration
@@ -82,6 +91,7 @@ ctest --test-dir build --output-on-failure
 | Option | Default | Description |
 |--------|---------|-------------|
 | `BUILD_TESTING` | `ON` | Build unit tests |
+| `MD_USE_CMARK` | `OFF` | Use cmark library for full CommonMark compliance |
 | `MD_USE_WEBENGINE` | `OFF` | Enable Qt WebEngine for preview |
 
 ### Example with options
@@ -90,6 +100,7 @@ ctest --test-dir build --output-on-failure
 cmake -S . -B build \
     -D CMAKE_BUILD_TYPE=Release \
     -D BUILD_TESTING=ON \
+    -D MD_USE_CMARK=ON \
     -D MD_USE_WEBENGINE=OFF
 ```
 
@@ -113,6 +124,26 @@ The demo will:
 3. Display original and modified text
 4. Show line/offset mapping
 5. Print patch history
+
+### Running the Markdown Preview Tool
+
+The `mdpreview` tool renders markdown to HTML:
+
+```bash
+# Linux/macOS
+./build/src/cli/mdpreview samples/sample.md out/preview.html
+
+# Windows (run from project root)
+.\build\src\cli\Debug\mdpreview.exe samples\sample.md out\preview.html
+```
+
+The tool will:
+1. Load markdown via GapBuffer
+2. Render to HTML using the markdown parser
+3. Generate a complete HTML page with styling
+4. Write to the output file
+
+Open `out/preview.html` in a browser to view the result.
 
 ### Running the stub application
 
@@ -146,6 +177,36 @@ auto patches = buffer.flushPatches();  // Get edit history
 ```
 
 **Note:** All offsets are in UTF-8 bytes, not characters. See `gap_buffer.h` for details.
+
+### Markdown Parser API
+
+The `markdown` library provides pluggable markdown-to-HTML rendering:
+
+```cpp
+#include "IMarkdownParser.h"
+
+// Create default parser (FallbackRenderer or CMarkAdapter)
+auto parser = mdeditor::createDefaultParser();
+
+// Render markdown to HTML
+std::string html = parser->renderToHtml("# Hello\n\nWorld");
+
+// Check parser info
+std::cout << parser->parserName();      // "FallbackRenderer" or "CMarkAdapter"
+std::cout << parser->isFullCommonMark(); // false or true
+```
+
+**Supported Elements (Fallback Renderer):**
+- Headings (# through ######)
+- Paragraphs
+- Fenced code blocks (``` or ~~~)
+- Unordered lists (-, *, +)
+- Ordered lists (1., 2.)
+- Blockquotes (>)
+- Horizontal rules (---, ***, ___)
+- Inline: **bold**, *italic*, `code`
+
+For full CommonMark compliance, build with `-DMD_USE_CMARK=ON`.
 
 ### Adding new source files
 

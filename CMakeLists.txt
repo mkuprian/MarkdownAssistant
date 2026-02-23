@@ -25,6 +25,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -----------------------------------------------------------------------------
 option(BUILD_TESTING "Build unit tests" ON)
 option(MD_USE_WEBENGINE "Use Qt WebEngine for preview rendering" OFF)
+option(MD_USE_CMARK "Use cmark library for full CommonMark compliance" OFF)
 
 # -----------------------------------------------------------------------------
 # CMake Module Path
@@ -52,6 +53,7 @@ message(STATUS "  Version:        ${PROJECT_VERSION}")
 message(STATUS "  C++ Standard:   ${CMAKE_CXX_STANDARD}")
 message(STATUS "  Build Type:     ${CMAKE_BUILD_TYPE}")
 message(STATUS "  BUILD_TESTING:  ${BUILD_TESTING}")
+message(STATUS "  MD_USE_CMARK:   ${MD_USE_CMARK}")
 message(STATUS "  MD_USE_WEBENGINE: ${MD_USE_WEBENGINE}")
 message(STATUS "==============================")
 message(STATUS "")
