@@ -23,6 +23,11 @@
 //   - No tables
 //   - Simplified inline parsing
 //
+// NEXT STEPS:
+// ------------
+// - add support for nested lists and blockquotes
+// - add table support
+//
 // =============================================================================
 
 #ifndef MDEDITOR_FALLBACK_RENDERER_H
